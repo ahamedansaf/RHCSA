@@ -1,0 +1,49 @@
+mount ISO image on boot ising fstab
+(redhat-repo - my mount directory you can replace with your dirctoy name 
+/dev/sr0 - is my cd drive)
+
+1.edit fstab 
+vi etc/fstab
+2.add line
+/dev/sr0        /redhat-repo iso9660 defaults 0 0
+3.save fstab :wq
+4.reboot your vm
+reboot
+
+create a new repo for install packages offline using previously mounted ISO image
+
+1.to find media id
+head -n1 /redhat-repo/.diskinfo
+it will show something like this 1446216863.790260
+
+2. create a new repositary
+touch /etc/yum.repos.d/winsys.repo
+
+3. edit repo
+vi /etc/yum.repos.d/winsys.repo
+
+#my new repo
+[rhel-server]
+#use step one to find media id
+mediaid=1446216863.790260
+#any name you like
+name=offline_repo
+#mount point of ISO image
+baseurl=file:///redhat-repo
+#gpgkey path leave it like this
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+enabled=1
+gpgcheck=1
+
+4.save repo :wq
+
+installing packages
+
+1. update yum repos
+yum update
+2.install packages
+yum install rpcbind
+yum install nfs-utils
+yum install nfs-server
+yum install nfs-idmap
+yum install nfs-lock
